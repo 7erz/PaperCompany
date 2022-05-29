@@ -5,21 +5,47 @@ using UnityEngine;
 public class CharJump : MonoBehaviour
 {
     Rigidbody2D rb;            // Rigidbody2D 클래스를 가진 변수 rb
-    public float jumpPower;    // jumpPower변수 공개 
+    public float jumpPower = 600f, speed = 5f;    // jumpPower변수 공개 
+    public bool doubleJump = false;
+    public bool isGround = false;
+    float moveX;
     // Start is called before the first frame update
+    
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>(); 
-        // Rigidbody2D라는 컴포넌트를 rb에 넣겠다.
+        rb = GetComponent<Rigidbody2D>();
     }
-
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // 0 = Mouse left
-            // 마우스 좌클릭을 할 때 힘을 받아서 위로 움직이겠다
+        Movement();
+    }
+
+    void Movement()
+    {
+        if (rb.velocity.y == 0)
+            isGround = true;
+        else
+            isGround = false;
+
+        if (isGround)
+            doubleJump = true;
+
+        if (isGround && Input.GetKeyDown(KeyCode.Space))
+            JumpAddForce();
+        else if (doubleJump && Input.GetKeyDown(KeyCode.Space))
         {
-            rb.velocity = Vector2.up * jumpPower; 
+            JumpAddForce();
+            doubleJump = false;
         }
+
+        moveX = Input.GetAxis("Horizontal") * speed;
+        rb.velocity = new Vector2(moveX, rb.velocity.y);
+    }
+    
+    void JumpAddForce()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        rb.AddForce(Vector2.up * jumpPower);
     }
 }
